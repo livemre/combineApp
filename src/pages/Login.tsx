@@ -17,17 +17,17 @@ import {
 // Context
 import { MainContext, useContext } from "../context/Context";
 
-function Login() {
+const Login:React.FC = () => {
   // Contex den gelen veriler alınıyor.
   const { user } = useContext(MainContext);
   // Stateler oluşturuluyor.
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const navigate = useNavigate();
 
   // login methodunu çalıştır ve giriş yap.
-  async function onSubmitHandle(e) {
+  async function onSubmitHandle(e:React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     login(email, password);
   }
@@ -37,7 +37,7 @@ function Login() {
     if (user) {
       navigate("/dashboard");
     }
-  }, [user]);
+  }, [user,navigate]);
 
   return (
     <Flex
@@ -59,14 +59,15 @@ function Login() {
           boxShadow={"lg"}
           p={8}
         >
+          <form onSubmit={onSubmitHandle}>
           <Stack spacing={4}>
-            <FormControl id="email" onChange={(e) => setEmail(e.target.value)}>
+            <FormControl id="email" onChange={(e) => setEmail((e.target as HTMLInputElement).value)}>
               <FormLabel>Email address</FormLabel>
               <Input type="email" />
             </FormControl>
             <FormControl
               id="password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
             >
               <FormLabel>Password</FormLabel>
               <Input type="password" />
@@ -82,7 +83,7 @@ function Login() {
                 </Text>
               </Stack>
               <Button
-                onClick={onSubmitHandle}
+                type="submit"
                 bg={"blue.400"}
                 color={"white"}
                 _hover={{
@@ -93,6 +94,7 @@ function Login() {
               </Button>
             </Stack>
           </Stack>
+          </form>
         </Box>
       </Stack>
     </Flex>

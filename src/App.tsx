@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { getUserData } from "./services/firebase";
 
 // Firebase fonksiyonları import ediliyor. Auth durumu değişikliği kontrol etmek ve getAuth ile auth bilgisi almak için.
-import { onAuthStateChanged, getAuth } from "firebase/auth";
+import { onAuthStateChanged, getAuth, User } from "firebase/auth";
 
 //Pages importu
 import Register from "./pages/Register";
@@ -24,15 +24,24 @@ import "./App.css";
 
 function App() {
   // Kullanıcının tüm verileri için stateler oluşturuluyor.
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
-  const [profileImage, setProfileImage] = useState("");
-  const [credit, setCredit] = useState("");
-  const [id, setId] = useState("");
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState<User|null>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string>("");
+  const [credit, setCredit] = useState<number>(0);
+  const [id, setId] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
 
   const auth = getAuth();
+
+  interface IUser {
+    email : string;
+    credit : string;
+    profileImage : string;
+    id : string;
+    username : string;
+
+  }
 
   // Data objesi içinde tüm stateler toplanıyor.
   const data = {
@@ -55,6 +64,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
+      console.log(u);
     });
 
     // Uygulamadan çıkıldığında veya bu bileşen ekrandan kalktığında,
@@ -62,18 +72,21 @@ function App() {
     // Bu, gereksiz dinlemelerin önlenmesi ve performansın korunması için yapılır.
 
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   useEffect(() => {
     async function getData() {
       //getuserData fonksiyonuna email adresi yolluyoruz ve geri gelen veriyi callback ile alıyoruz.
-      await getUserData(user.email).then((data) => {
+      await getUserData(user?.email ?? "").then((data) => {
+        console.log(data);
         // data callback ile gelen verileri set fonksiyonu ile statelere aktarıyoruz.
-        setEmail(data.email);
-        setProfileImage(data.profileImage);
-        setCredit(data.credit);
-        setUsername(data.username);
-        setId(data.id);
+        if (data) {
+          setEmail(data.email);
+          setProfileImage(data.profileImage);
+          setCredit(data.credit);
+          setUsername(data.username);
+          setId(data.id);
+        }
       });
     }
 

@@ -27,50 +27,80 @@ import {
 
 import { db } from "../services/firebase";
 
-export const Combine = ({ item, email }) => {
-  async function likeTweet(id) {
-    console.log("tweet likelendi");
+interface IProps {
+  item:ICombine;
+  email:string;
+}
+
+interface IPrediction {
+  id:string;
+  pick:number;
+  teams: string;
+  type: string;
+
+}
+
+interface ICombine {
+  boughtUsers : string [];
+  combine: IPrediction[];
+  credit: number;
+  id:string;
+  likedUsers : string[];
+  sender : string;
+  timestamp: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  username : string;
+  isLiked : boolean;
+  isBought : boolean;
+  profileImage : string | null;
+}
+
+export const Combine:React.FC<IProps> = ({ item, email }) => {
+  async function likeCombine(id:string):Promise<void> {
+    
 
     // Tweet belgesinin referansını al
-    const tweetRef = doc(db, "combines", id);
+    const combineRef = doc(db, "combines", id);
 
     // Tweet belgesini al
-    const tweetSnap = await getDoc(tweetRef);
+    const tweetSnap = await getDoc(combineRef);
     const tweetData = tweetSnap.data();
 
     // Kullanıcının tweeti beğenip beğenmediğini kontrol et
-    if (tweetData.likedUsers.includes(email)) {
+    if (tweetData?.likedUsers.includes(email)) {
       // Eğer kullanıcı tweeti zaten beğendi ise, e-postasını likedUsers dizisinden kaldır
-      await updateDoc(tweetRef, {
+      await updateDoc(combineRef, {
         likedUsers: arrayRemove(email),
       });
     } else {
       // Eğer kullanıcı tweeti beğenmedi ise, e-postasını likedUsers dizisine ekleyin
-      await updateDoc(tweetRef, {
+      await updateDoc(combineRef, {
         likedUsers: arrayUnion(email),
       });
     }
   }
 
-  async function buyTweet(id) {
-    console.log("tweet likelendi");
+  async function buyCombine(id:string):Promise<void> {
+
 
     // Tweet belgesinin referansını al
-    const tweetRef = doc(db, "combines", id);
+    const combineRef = doc(db, "combines", id);
 
     // Tweet belgesini al
-    const tweetSnap = await getDoc(tweetRef);
-    const tweetData = tweetSnap.data();
+    const combineSnap = await getDoc(combineRef);
+    const combineData = combineSnap.data();
 
     // Kullanıcının tweeti beğenip beğenmediğini kontrol et
-    if (tweetData.boughtUsers.includes(email)) {
+    if (combineData?.boughtUsers.includes(email)) {
       // Eğer kullanıcı tweeti zaten beğendi ise, e-postasını likedUsers dizisinden kaldır
-      await updateDoc(tweetRef, {
+      await updateDoc(combineRef, {
         boughtUsers: arrayRemove(email),
       });
     } else {
       // Eğer kullanıcı tweeti beğenmedi ise, e-postasını likedUsers dizisine ekleyin
-      await updateDoc(tweetRef, {
+      await updateDoc(combineRef, {
         boughtUsers: arrayUnion(email),
       });
     }
@@ -95,7 +125,7 @@ export const Combine = ({ item, email }) => {
         <hr className="bg-black" />
 
         {item.credit === 0 || item.isBought ? (
-          item.tweet.map((item) => (
+          item.combine.map((item:IPrediction) => (
             <CardBody>
               <Stack divider={<StackDivider />} spacing="4">
                 <Box>
@@ -131,25 +161,35 @@ export const Combine = ({ item, email }) => {
         )}
 
         <CardFooter>
-          <Button
-            m={2}
-            colorScheme={item.isLiked ? "red" : "gray"}
-            onClick={() => likeTweet(item.id)}
-          >
-            {item.isLiked ? (
-              <Text>{item.likedUsers.length} Like</Text>
-            ) : (
-              <Text> {item.likedUsers.length} Like</Text>
-            )}
-          </Button>
+          {email === "" ? (
+            <Card p={1} m={1}>
+              <Text>{item.likedUsers.length} users liked.</Text>
+            </Card>
+          ) : (
+            <Button
+              m={2}
+              colorScheme={item.isLiked ? "red" : "gray"}
+              onClick={() => likeCombine(item.id)}
+            >
+              {item.isLiked ? (
+                <Text>{item.likedUsers.length} Like</Text>
+              ) : (
+                <Text> {item.likedUsers.length} Like</Text>
+              )}
+            </Button>
+          )}
 
-          {item.isBought ? (
+          {email === "" ? (
+            <Card p={1} m={1}>
+              <Text>{item.boughtUsers.length} users bought.</Text>
+            </Card>
+          ) : item.isBought ? (
             <Button m={2}> Bought</Button>
           ) : (
             <Button
               m={2}
               colorScheme={item.isBought ? "blue" : "green"}
-              onClick={() => buyTweet(item.id)}
+              onClick={() => buyCombine(item.id)}
             >
               {item.isBought ? "BOUGHT" : item.credit + " Credits"}
             </Button>

@@ -5,7 +5,7 @@ import "../App.css";
 
 import ListCombines from "../components/ListCombines";
 
-const Home = () => {
+const Home:React.FC = () => {
   return (
     <>
       <Navbar />

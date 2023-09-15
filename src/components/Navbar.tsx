@@ -1,9 +1,9 @@
+import React,{FC} from 'react';
 import {
   Box,
   Flex,
   Avatar,
   HStack,
-  Text,
   IconButton,
   Button,
   Menu,
@@ -14,32 +14,29 @@ import {
   useDisclosure,
   useColorModeValue,
   Stack,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalOverlay,
-  ModalHeader,
-  ModalCloseButton,
-  Lorem,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, AddIcon } from "@chakra-ui/icons";
 import { MainContext, useContext } from "../context/Context";
-import { Navigate, useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { signOut, auth } from "../services/firebase";
 
-const Links = [
+interface Link {
+  title: string;
+  url: string;
+}
+
+const Links:Link[] = [
   { title: "All Combines", url: "/allCombines" },
   { title: "My Combines", url: "/myCombines" },
 ];
 
-export default function WithAction() {
+const  WithAction: FC = ()=> {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { profileImage } = useContext(MainContext);
   const navigate = useNavigate();
 
   async function logOut() {
-    return await signOut(auth).then(navigate("/login"));
+    return await signOut(auth).then(()=> navigate("/login"));
   }
 
   return (
@@ -102,7 +99,7 @@ export default function WithAction() {
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink to={"/emre"} key={link.title}>{link.title}</NavLink>
               ))}
             </Stack>
           </Box>
@@ -111,3 +108,5 @@ export default function WithAction() {
     </>
   );
 }
+
+export default WithAction;

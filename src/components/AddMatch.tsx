@@ -28,15 +28,50 @@ import { MainContext, useContext } from "../context/Context";
 import Navbar from "./Navbar";
 import "../App.css";
 
+interface IOdds  {
+  awayWin: any,
+  homeWin: any,
+  draw: any,
+  over: any,
+  under: any,
+};
+
+interface IMatch {
+  awayTeam: string;
+  homeTeam: string;
+  id: string;
+  league: string;
+  odds: IOdds;
+  startTime: string;
+}
+
+interface IYourCombine {
+  id: any;
+  pick: any;
+  teams: any;
+  type: any;
+}
+
 function AddMatch() {
-  const [matches, setMatches] = useState([]);
-  const [yourCombine, setYourCombine] = useState([]);
-  const [totalOdds, setTotalOdds] = useState("");
-  const [credit, setCredit] = useState(0);
+  const [matches, setMatches] = useState<IMatch[]>([]);
+  const [yourCombine, setYourCombine] = useState<IYourCombine[]>([]);
+  const [totalOdds, setTotalOdds] = useState<number>(0);
+  const [credit, setCredit] = useState<number>(0);
 
   const { id, username } = useContext(MainContext);
 
-  function handlePick(matchId, matchTeams, oddsValue, oddsType) {
+  console.log("Matches");
+  console.log(matches);
+  console.log("Your Combine");
+  console.log(yourCombine);
+  console.log("Total Odds");
+  console.log(totalOdds);
+  
+  
+
+
+
+  function handlePick(matchId:any, matchTeams:any, oddsValue:any, oddsType:any):void {
     // Seçilen oranın zaten yourCombine listesinde olup olmadığını kontrol et
     const pickExists = yourCombine.some(
       (pick) => pick.id === matchId && pick.type === oddsType
@@ -61,7 +96,7 @@ function AddMatch() {
       updatedCombines.push(newPick);
     }
 
-    const sortedCombine = updatedCombines.sort((a, b) => b.id - a.id);
+    const sortedCombine = updatedCombines.sort((a, b) => Number(b.id) - Number(a.id));
     setYourCombine(sortedCombine);
   }
 
@@ -69,11 +104,11 @@ function AddMatch() {
     getMatches();
   }, []);
 
-  function handleChange(value) {
+  function handleChange(value:any) {
     return setCredit(value);
   }
 
-  async function onCombineHandler(e) {
+  async function onCombineHandler(e:any) {
     e.preventDefault();
     // alert(tweet);
 
@@ -82,7 +117,7 @@ function AddMatch() {
     // Dökümanı ekle ve geriye dönen referansı al
     const docRef = await addDoc(collection(db, "combines"), {
       username: username,
-      tweet: yourCombine,
+      combine: yourCombine,
       sender: id,
       timestamp: Timestamp.fromMillis(Date.now()),
       likedUsers: [],
@@ -101,27 +136,31 @@ function AddMatch() {
 
   useEffect(() => {
     const total = yourCombine.reduce((accumulator, currentItem) => {
-      return accumulator * parseFloat(currentItem.pick);
+      return accumulator * currentItem.pick;
     }, 1);
-    setTotalOdds(total.toFixed(2));
+    setTotalOdds(total);
+    console.log("Your Combine");
+    console.log(yourCombine);
   }, [yourCombine]);
 
   async function getMatches() {
     const q = query(collection(db, "matches"));
     const querySnapshot = await getDocs(q);
-    const matchsArray = [];
+    const matchsArray:IMatch[] = [];
     for (const doc of querySnapshot.docs) {
       const matchsData = doc.data();
 
-      matchsArray.push({ ...matchsData });
+      matchsArray.push({ ...matchsData as IMatch });
     }
     setMatches(matchsArray);
+    console.log("Matches");
+    console.log(matches);
   }
 
   return (
     <div className="addMatchContainer">
       <div className="fixed">
-        <Navbar />
+      <Navbar />
       </div>
       <div className="addMatch">
         <Box>
@@ -140,6 +179,7 @@ function AddMatch() {
               </Thead>
 
               {matches.map((item) => {
+                console.log(matches);
                 return (
                   <Thead>
                     <Tr>
@@ -151,7 +191,7 @@ function AddMatch() {
                             yourCombine.some(
                               (pick) =>
                                 pick.id === item.id &&
-                                pick.pick === item.odds.homeWin &&
+                                pick.pick === item.odds?.homeWin &&
                                 pick.type === "homeWin" // Oranın türünü kontrol edin
                             )
                               ? "bg-green"
@@ -166,7 +206,7 @@ function AddMatch() {
                             )
                           }
                         >
-                          {item.odds.homeWin}
+                          {item.odds?.homeWin}
                         </Button>
                       </Th>
                       <Th isNumeric>
@@ -175,7 +215,7 @@ function AddMatch() {
                             yourCombine.some(
                               (pick) =>
                                 pick.id === item.id &&
-                                pick.pick === item.odds.draw &&
+                                pick.pick === item.odds?.draw &&
                                 pick.type === "draw" // Oranın türünü kontrol edin
                             )
                               ? "bg-green"
@@ -185,12 +225,12 @@ function AddMatch() {
                             handlePick(
                               item.id,
                               item.homeTeam + "-" + item.awayTeam,
-                              item.odds.draw,
+                              item.odds?.draw,
                               "draw"
                             )
                           }
                         >
-                          {item.odds.draw}
+                          {item.odds?.draw}
                         </Button>
                       </Th>
                       <Th isNumeric>
@@ -199,7 +239,7 @@ function AddMatch() {
                             yourCombine.some(
                               (pick) =>
                                 pick.id === item.id &&
-                                pick.pick === item.odds.awayWin &&
+                                pick.pick === item.odds?.awayWin &&
                                 pick.type === "awayWin" // Oranın türünü kontrol edin
                             )
                               ? "bg-green"
@@ -209,12 +249,12 @@ function AddMatch() {
                             handlePick(
                               item.id,
                               item.homeTeam + "-" + item.awayTeam,
-                              item.odds.awayWin,
+                              item.odds?.awayWin,
                               "awayWin"
                             )
                           }
                         >
-                          {item.odds.awayWin}
+                          {item.odds?.awayWin}
                         </Button>
                       </Th>
                       <Th isNumeric>
@@ -223,7 +263,7 @@ function AddMatch() {
                             yourCombine.some(
                               (pick) =>
                                 pick.id === item.id &&
-                                pick.pick === item.odds.over &&
+                                pick.pick === item.odds?.over &&
                                 pick.type === "over" // Oranın türünü kontrol edin
                             )
                               ? "bg-green"
@@ -233,12 +273,12 @@ function AddMatch() {
                             handlePick(
                               item.id,
                               item.homeTeam + "-" + item.awayTeam,
-                              item.odds.over,
+                              item.odds?.over,
                               "over"
                             )
                           }
                         >
-                          {item.odds.over}
+                          {item.odds?.over}
                         </Button>
                       </Th>
                       <Th isNumeric>
@@ -247,7 +287,7 @@ function AddMatch() {
                             yourCombine.some(
                               (pick) =>
                                 pick.id === item.id &&
-                                pick.pick === item.odds.under &&
+                                pick.pick === item.odds?.under &&
                                 pick.type === "under" // Oranın türünü kontrol edin
                             )
                               ? "bg-green"
@@ -257,12 +297,12 @@ function AddMatch() {
                             handlePick(
                               item.id,
                               item.homeTeam + "-" + item.awayTeam,
-                              item.odds.under,
+                              item.odds?.under,
                               "under"
                             )
                           }
                         >
-                          {item.odds.under}
+                          {item.odds?.under}
                         </Button>
                       </Th>
                     </Tr>
@@ -292,7 +332,7 @@ function AddMatch() {
                   );
                 })}
                 <Card className="mt-3" m={2}>
-                  <CardFooter>{"Total Odds: " + totalOdds}</CardFooter>
+                  <CardFooter>{"Total Odds: " + totalOdds.toFixed(2)}</CardFooter>
                 </Card>
                 <div className="publish-zone">
                   <Select
@@ -318,70 +358,6 @@ function AddMatch() {
         )}
       </div>
     </div>
-
-    /* <div className="matchList">
-      <div className="yourCombine">
-        <p>Your Combine</p>
-        {"Total Odds: " + totalOdds}
-        {yourCombine.map((item) => {
-          return (
-            <div className="matchCard" key={item.id}>
-              <div className="singleMatch">
-                <div>{item.teams}</div>
-                <div>
-                  <p>{item.pick}</p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div>
-        <button onClick={getMatches}>Get Matches</button>
-        {matches.map((item) => {
-          return (
-            <div className="matchCard" key={item.id}>
-              <div>{item.homeTeam + "-" + item.awayTeam}</div>
-              <div>
-                <button
-                  onClick={() =>
-                    handlePick(
-                      item.id,
-                      item.homeTeam + "-" + item.awayTeam,
-                      item.odds.homeWin
-                    )
-                  }
-                >
-                  {item.odds.homeWin}
-                </button>
-                <button
-                  onClick={() =>
-                    handlePick(
-                      item.id,
-                      item.homeTeam + "-" + item.awayTeam,
-                      item.odds.draw
-                    )
-                  }
-                >
-                  {item.odds.draw}
-                </button>
-                <button
-                  onClick={() =>
-                    handlePick(
-                      item.id,
-                      item.homeTeam + "-" + item.awayTeam,
-                      item.odds.awayWin
-                    )
-                  }
-                >
-                  {item.odds.awayWin}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>*/
   );
 }
 

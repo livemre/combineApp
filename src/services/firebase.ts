@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 
 import {
+  User,
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -20,19 +21,28 @@ import app from "../firebaseConfig";
 const auth = getAuth();
 const db = getFirestore(app);
 
+interface UserData {
+  username: string;
+  email: string;
+  profileImage: string;
+  id: string;
+  credit: number;
+}
+
+
 // email ve password göndererek kullanıcı oluşturuyoruz. user döndürüyoruz.
-export const register = async (email, password) => {
+export const register = async (email:string, password:string) : Promise<User> => {
   const { user } = await createUserWithEmailAndPassword(auth, email, password);
   return user;
 };
 
-export const login = async (email, password) => {
+export const login = async (email:string, password:string) : Promise<User>=> {
   const { user } = await signInWithEmailAndPassword(auth, email, password);
   return user;
 };
 
 // gönderilen username firebase veritabanında "usernames" koleksiyonunda sorgulanıyor. geriye bool döndürülüyor.
-export const checkUsername = async (username) => {
+export const checkUsername = async (username:string) :Promise<boolean> => {
   const usersRef = collection(db, "usernames");
   const q = query(usersRef, where("username", "==", username));
   const querySnapshot = await getDocs(q);
@@ -40,7 +50,7 @@ export const checkUsername = async (username) => {
 };
 
 // Emaili verilen bir userin tüm verileri firebase den alınıyor ve geri döndürülüyor.
-export const getUserData = async (email) => {
+export const getUserData = async (email:string):Promise<UserData | null> => {
   // userRef adında bir değişken oluşturup, firebase fonk. olan "collection" ile "db" veritabanından
   // "users" koleksiyonunun yolunu belirtiyoruz.
   const usersRef = collection(db, "users");
@@ -52,22 +62,26 @@ export const getUserData = async (email) => {
   // "quertSnapshot" değişkenine, firebase getDocs
   // fonksiyonu ile yukarıdaki myQuery sorgusundan dönen dosyaları geri döndürüyoruz.
   const querySnapshot = await getDocs(myQuery);
-
+  
   // Eğer email ile eşleşen veri varsa dizi döndürüyor.
-  if (!querySnapshot.empty) {
-    //dönen verinin ilk objesi alınıyor.
-    const userDoc = querySnapshot.docs[0];
+ try {
+   //dönen verinin ilk objesi alınıyor.
+   const userDoc = querySnapshot.docs[0];
 
-    // .data() donksiyonu ile gelen objenin tüm verilerine ulaşıp döndürülüyor.
+   // .data() donksiyonu ile gelen objenin tüm verilerine ulaşıp döndürülüyor.
 
-    return userDoc.data();
-  } else {
-    console.log("Kullanıcı bulunamadı.");
-    return null;
-  }
+   const userDocData: UserData = userDoc.data() as UserData;
+   return userDocData;
+ } catch (error) {
+  console.log("Kullanıcı bulunamadı." + error);
+  return null;
+ }
+
+
+
 };
 
-export async function registerUsertoFirestore(uid, email, username) {
+export async function registerUsertoFirestore(uid:string, email:string, username:string):Promise<void> {
   const userDocRef = doc(db, "users", uid);
   await setDoc(userDocRef, {
     username: username,

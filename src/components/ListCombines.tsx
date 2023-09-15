@@ -2,18 +2,53 @@ import React, { useState, useEffect } from "react";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { MainContext, useContext } from "../context/Context";
-import { Box, Card, Container, Spinner } from "@chakra-ui/react";
+import { Box, Container, Spinner } from "@chakra-ui/react";
 import { Combine } from "../components/Combine";
+import { useParams } from 'react-router-dom';
 
-const ListCombines = ({ username = null }) => {
+
+
+
+interface IPrediction {
+  id:string;
+  pick:number;
+  teams: string;
+  type: string;
+
+}
+
+interface IDocData {
+  boughtUsers : string [];
+  combine: IPrediction[];
+  credit: number;
+  id:string;
+  likedUsers : string[];
+  sender : string;
+  timestamp: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  username : string;
+}
+
+interface ICombine extends IDocData{
+  isLiked : boolean;
+  isBought : boolean;
+  profileImage : string | null;
+}
+
+
+interface ListCombinesProps {
+  username?: string;
+}
+
+
+
+const ListCombines = ({ username }:ListCombinesProps) => {
   const { email } = useContext(MainContext);
-  const [combines, setCombines] = useState([]);
+  const [combines, setCombines] = useState<ICombine[]>([]);
 
-  useEffect(() => {
-    getAllCombines();
-  }, [combines]);
-
-  async function getAllCombines() {
+  const getAllCombines = async () => {
     let q;
     if (username) {
       q = query(collection(db, "combines"), where("username", "==", username));
@@ -23,32 +58,40 @@ const ListCombines = ({ username = null }) => {
 
     const querySnapshot = await getDocs(q);
 
-    // Promise.all ile tüm asenkron işlemleri aynı anda yapıyoruz. verileri
     const combinesArray = await Promise.all(
       querySnapshot.docs.map(async (doc) => {
-        const combineData = doc.data();
+        const combineData = doc.data() as IDocData;
+
+        
+        
         const profileImage = await getCombineSenderProfileImage(
           combineData.sender
         );
-        const isLiked = await isCombineLikedByUser(combineData);
-        const isBought = await isCombineBoughtByUser(combineData);
-        return { ...combineData, profileImage, isLiked, isBought };
+        const isLiked = isCombineLikedByUser(combineData);
+        const isBought = isCombineBoughtByUser(combineData);
+        return { ...combineData, profileImage, isLiked, isBought } as ICombine;
       })
     );
 
-    // Veriyi zaman damgasına göre sıralayarak state'e kaydetme
-    setCombines(combinesArray.sort((a, b) => b.timestamp - a.timestamp));
-  }
+    setCombines(combinesArray.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds));
+  };
 
-  function isCombineLikedByUser(combine) {
+  console.log("combines");
+  console.log(combines[5]);
+
+  useEffect(() => {
+    getAllCombines();
+  }, [combines]);
+
+  function isCombineLikedByUser(combine:IDocData) {
     return combine.likedUsers.includes(email);
   }
 
-  function isCombineBoughtByUser(combine) {
+  function isCombineBoughtByUser(combine:IDocData) {
     return combine.boughtUsers.includes(email);
   }
 
-  async function getCombineSenderProfileImage(id) {
+  async function getCombineSenderProfileImage(id:string) {
     try {
       const q = query(collection(db, "users"), where("id", "==", id));
       const querySnapshot = await getDocs(q);
