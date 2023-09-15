@@ -14,25 +14,30 @@ import {
   useDisclosure,
   useColorModeValue,
   Stack,
+
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon, AddIcon } from "@chakra-ui/icons";
 import { MainContext, useContext } from "../context/Context";
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink, Link } from "react-router-dom";
 import { signOut, auth } from "../services/firebase";
 
-interface Link {
+interface ILink {
   title: string;
   url: string;
 }
 
-const Links:Link[] = [
+const Links:ILink[] = [
   { title: "All Combines", url: "/allCombines" },
   { title: "My Combines", url: "/myCombines" },
 ];
 
+const NoUserLinks: ILink[] = [
+  { title : "Home" , url: "/"}
+]
+
 const  WithAction: FC = ()=> {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { profileImage } = useContext(MainContext);
+  const { profileImage, user } = useContext(MainContext);
   const navigate = useNavigate();
 
   async function logOut() {
@@ -42,7 +47,7 @@ const  WithAction: FC = ()=> {
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
-        <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+       {user?  <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
           <IconButton
             size={"md"}
             icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -86,14 +91,42 @@ const  WithAction: FC = ()=> {
                 <Avatar size={"sm"} src={profileImage} />
               </MenuButton>
               <MenuList>
-                <MenuItem>Link 1</MenuItem>
-                <MenuItem>Link 2</MenuItem>
+                <Link to="/editProfile"> <MenuItem>Edit Profile</MenuItem> </Link>
+                
                 <MenuDivider />
                 <MenuItem onClick={logOut}>Sign Out</MenuItem>
               </MenuList>
             </Menu>
           </Flex>
-        </Flex>
+        </Flex> : 
+         <Flex h={16} alignItems={"center"} justifyContent={"space-between"}>
+         <IconButton
+           size={"md"}
+           icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+           aria-label={"Open Menu"}
+           display={{ md: "none" }}
+           onClick={isOpen ? onClose : onOpen}
+         />
+         <HStack spacing={8} alignItems={"center"}>
+           <Box>Logo</Box>
+           <HStack
+             as={"nav"}
+             spacing={4}
+             display={{ base: "none", md: "flex" }}
+           >
+             {NoUserLinks.map((link) => (
+               <NavLink to={link.url} key={link.title}>
+                 {link.title}
+               </NavLink>
+             ))}
+           </HStack>
+         </HStack>
+         <div className='flex-center'>
+          <Link to="/login"><Button>Login</Button></Link>
+          <Link to="/register"><Button>Register</Button></Link>
+          </div>
+       </Flex>
+        }
 
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>

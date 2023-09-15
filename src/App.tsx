@@ -21,6 +21,8 @@ import { MainContext } from "./context/Context";
 import AddMatch from "./components/AddMatch";
 
 import "./App.css";
+import MyCombines from "./pages/MyCombines";
+import EditProfile from "./pages/profile/EditProfile";
 
 function App() {
   // Kullanıcının tüm verileri için stateler oluşturuluyor.
@@ -34,14 +36,7 @@ function App() {
 
   const auth = getAuth();
 
-  interface IUser {
-    email : string;
-    credit : string;
-    profileImage : string;
-    id : string;
-    username : string;
 
-  }
 
   // Data objesi içinde tüm stateler toplanıyor.
   const data = {
@@ -111,6 +106,8 @@ function App() {
           <Route path="/addMatch" element={<AddMatch />} />
           <Route path="/allcombines" element={<AllCombines />} />
           <Route path="/u/:username" element={<UserProfile />} />
+          <Route path="/myCombines" element={<MyCombines />} />
+          <Route path="/editProfile" element={<EditProfile />} />
         </Routes>
       </Router>
     </MainContext.Provider>

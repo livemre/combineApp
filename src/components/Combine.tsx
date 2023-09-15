@@ -191,7 +191,7 @@ export const Combine:React.FC<IProps> = ({ item, email }) => {
               colorScheme={item.isBought ? "blue" : "green"}
               onClick={() => buyCombine(item.id)}
             >
-              {item.isBought ? "BOUGHT" : item.credit + " Credits"}
+              {item.isBought ? "BOUGHT" : item.credit === 0 ? "FREE" : item.credit + " Credits"}
             </Button>
           )}
         </CardFooter>
