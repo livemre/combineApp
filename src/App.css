@@ -2,6 +2,12 @@
   text-align: center;
 }
 
+body, p, h4 {
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -36,6 +42,29 @@
     transform: rotate(360deg);
   }
 }
+
+
+.container{
+  background-color: #000000;
+  border: 1px solid red;
+  margin-top: 45px;
+  padding: 0;
+  width: 100%;
+
+
+}
+
+
+.navbar-bar{
+  background-color: #000000;
+  position: fixed;
+  height: 45px;
+  z-index: 500;
+  margin-bottom: 45px;
+  width: 100%;
+  margin-top: 0px;
+}
+
 
 
 .register-card {
@@ -154,19 +183,20 @@ button:hover {
 }
 
 .bg-combine {
-  border: 3px solid rgb(255, 255, 255) !important;
-  background-color: #cbf9ba !important;
+  border: 3px dotted rgb(48, 48, 48) !important;
+  background-color: #000000 !important;
   
 }
 
 .bg-black {
-  border: 3px solid rgb(6, 104, 53) !important;
+  border: 3px dotted rgb(44, 44, 44) !important;
   background-color: #ffe65a00 !important;
   
 }
 
 .yourCombine {
-  min-width: 700px
+  min-width: 700px;
+
 }
 
 .mt-3 {
@@ -197,10 +227,29 @@ button:hover {
   
 }
 
+.flex-jc-col{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+
+
 .flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.flex-center-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .mr-3{
@@ -217,4 +266,153 @@ button:hover {
 
 .vh-100 {
   height: 100vh;
+}
+
+.profile {
+
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  
+}
+
+.profile-image {
+  border-radius: 100%;
+  width: 100px;
+  height: 100px;
+  border: 2px dotted rgb(53, 53, 53);
+}
+
+.profile-header {
+  padding: 10px;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 98%;
+  margin: 0 auto;
+}
+
+.profile-stats{
+  display: flex;
+  flex-direction: row;
+  background-color: #007bff00;
+
+}
+
+.profile-stats-item {
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fe81a200;
+
+  height: 70px;
+  width: 70px;
+  
+  
+}
+
+.profile-item{
+  
+  align-self: center;
+}
+
+.profile-item-numbers{
+  font-size: 1.2rem;
+}
+
+.profile-image-stats {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.follow-div{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.user-follow-text{
+  margin-right: 5px;
+  color: #7a7a7a;
+}
+
+.profile-desc{
+  align-self: self-start;
+  font-size: 0.8rem;
+  font-weight: 400;
+  margin-top: 10px;
+}
+
+.side-nav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: #222222;
+  overflow-x: hidden;
+  transition: 0.8s;
+  padding-top: 60px;
+  color: white;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.side-nav-content {
+  width: 300px; /* Bu genişliği istediğiniz bir değere ayarlayabilirsiniz */
+  overflow: hidden;
+}
+
+.side-nav a {
+  padding: 10px 15px 10px 30px;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+
+}
+
+.side-nav a:hover {
+  color: #f1f1f1;
+}
+
+
+.profile-pic {
+  border-radius: 100%;
+  width: 50px;
+  height: 50px;
+}
+
+
+
+.menu-buttons{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.oran-buttons {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.oran-yazili {
+  display: flex;
+  flex-direction: column;
 }

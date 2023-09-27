@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import Navbar from "../../components/Navbar"
-import { Button, Card, Container, Text, Avatar } from '@chakra-ui/react'
+import { Button, Card, Container, Text, Avatar, Box } from '@chakra-ui/react'
 import { MainContext, useContext } from '../../context/Context'
 import uuid from "react-uuid";
 import { db } from '../../services/firebase';
@@ -68,14 +68,15 @@ const EditProfile = () => {
       }
 
   return (
-    <div>
+    <div style={{height:"100vh", background:"black"}} >
         <Navbar />
-        <Container>
-            <Card justifyContent={'center'} alignItems={"center"}>
+        <Container pt={75} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+            <Card justifyContent={'center'} alignItems={"center"} background={"blackAlpha.200"}>
                 <Avatar size={'2xl'} src={profileImage} />
                 <Text>{email}</Text>
             </Card>
-        <input
+       <Card p={3} m={5}>
+       <input
   type="file"
   id="profileImageInput"
   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +84,8 @@ const EditProfile = () => {
     setImage(file);
   }}
 />
-          <Button onClick={onImageUpload}>Upload</Button>
+          <Button onClick={onImageUpload} mt={3}>Upload</Button>
+       </Card>
         </Container>
     </div>
   )

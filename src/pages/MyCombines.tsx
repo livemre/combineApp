@@ -2,19 +2,19 @@ import React from 'react'
 import NavBar from "../components/Navbar"
 import { MainContext, useContext } from '../context/Context'
 import ListCombines from '../components/ListCombines'
-import { Container } from '@chakra-ui/react'
+import { Container, Box } from '@chakra-ui/react'
 
 const MyCombines = () => {
 
   const {username} = useContext(MainContext);
 
   return (
-    <div>
+    <Box background={"black"}> 
       <NavBar />
-      <Container>
-        <ListCombines username={username} />
+      <Container pt={75}>
+        <ListCombines username={username}/>
       </Container>
-    </div>
+    </Box>
   )
 }
 

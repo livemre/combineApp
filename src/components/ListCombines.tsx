@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { query, collection, getDocs, where } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { MainContext, useContext } from "../context/Context";
-import { Box, Container, Spinner } from "@chakra-ui/react";
+import { Box, Card, Container, Spinner } from "@chakra-ui/react";
 import { Combine } from "../components/Combine";
 import { useParams } from 'react-router-dom';
+import FollowBox from "./FollowBox";
 
 
 
@@ -22,6 +23,7 @@ interface IDocData {
   combine: IPrediction[];
   credit: number;
   id:string;
+  totalOdds : number;
   likedUsers : string[];
   sender : string;
   timestamp: {
@@ -76,8 +78,6 @@ const ListCombines = ({ username }:ListCombinesProps) => {
     setCombines(combinesArray.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds));
   };
 
-  console.log("combines");
-  console.log(combines[5]);
 
   useEffect(() => {
     getAllCombines();
@@ -106,21 +106,37 @@ const ListCombines = ({ username }:ListCombinesProps) => {
     }
   }
 
+
+
   return (
     <div>
-      <Container>
+    <Container>
         {combines.length < 1 ? (
-          <Box className="flex-center">
-            <Spinner />
-          </Box>
+            <Box className="flex-center">
+                <Spinner />
+            </Box>
         ) : (
-          //Tüm combineler map ile işlem görüyor ve "Combine" komponenti ile gösteriliyor
-          combines.map((item) => (
-            <Combine key={item.id} item={item} email={email} />
-          ))
+            <div>
+                {combines.map((item, index) => {
+                 
+                    return (
+                        <div key={index}>
+                            {/* Rasgele seçilen aralıklarla Card komponentini göster */}
+                            
+                            
+                            {index % 3 === 0 && index !== 0 ? (<FollowBox />) : null }
+                           
+                            
+
+                            <Combine key={item.id} item={item} email={email} />
+                        </div>
+                    );
+                })}
+            </div>
         )}
-      </Container>
-    </div>
+    </Container>
+</div>
+
   );
 };
 

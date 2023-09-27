@@ -31,6 +31,8 @@ import {
 
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
+import Navbar from "../components/Navbar"
+
  const Register:React.FC =  () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -50,7 +52,7 @@ import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
   // Eğer user varsa Dashboard sayfasına yönlendir.
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      navigate("/allCombines");
     }
   }, [user,navigate]);
 
@@ -165,7 +167,9 @@ import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
   return (
  
-    <Box position={"relative"}>
+    <Box>
+      <Navbar />
+      <Box position={"relative"} pt={25}>
     <Container
       as={SimpleGrid}
       maxW={"7xl"}
@@ -389,6 +393,7 @@ import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
       </Stack>
     </Container>
   </Box>
+    </Box>
 
   );
 

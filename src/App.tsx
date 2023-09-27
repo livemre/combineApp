@@ -10,7 +10,6 @@ import { onAuthStateChanged, getAuth, User } from "firebase/auth";
 //Pages importu
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import AllCombines from "./pages/AllCombines";
 import UserProfile from "./pages/UserProfile";
@@ -59,7 +58,7 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
-      console.log(u);
+      //console.log(u);
     });
 
     // Uygulamadan çıkıldığında veya bu bileşen ekrandan kalktığında,
@@ -73,7 +72,7 @@ function App() {
     async function getData() {
       //getuserData fonksiyonuna email adresi yolluyoruz ve geri gelen veriyi callback ile alıyoruz.
       await getUserData(user?.email ?? "").then((data) => {
-        console.log(data);
+        //  console.log(data);
         // data callback ile gelen verileri set fonksiyonu ile statelere aktarıyoruz.
         if (data) {
           setEmail(data.email);
@@ -102,7 +101,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/addMatch" element={<AddMatch />} />
           <Route path="/allcombines" element={<AllCombines />} />
           <Route path="/u/:username" element={<UserProfile />} />

@@ -6,6 +6,7 @@ import {
   getDocs,
   doc,
   setDoc,
+  getDoc
 } from "firebase/firestore";
 
 import {
@@ -27,6 +28,7 @@ interface UserData {
   profileImage: string;
   id: string;
   credit: number;
+  desc: string;
 }
 
 
@@ -50,18 +52,30 @@ export const checkUsername = async (username:string) :Promise<boolean> => {
 };
 
 // Emaili verilen bir userin tüm verileri firebase den alınıyor ve geri döndürülüyor.
-export const getUserData = async (email:string):Promise<UserData | null> => {
+export const getUserData = async (email?:string, username?:string):Promise<UserData> => {
   // userRef adında bir değişken oluşturup, firebase fonk. olan "collection" ile "db" veritabanından
   // "users" koleksiyonunun yolunu belirtiyoruz.
   const usersRef = collection(db, "users");
 
   // "myQuery" ismi verilen değişken "userRef" yoluna query sorgu yapıyor ve
   //"where" fonk. ile "email" verisinin "email" attributuna eşit olma durumu sorgulanıyor.
-  const myQuery = query(usersRef, where("email", "==", email));
+ 
+  let myQuery:any;
+  if(username) {
+     myQuery = query(usersRef, where("username", "==", username));
+  } else {
+     myQuery = query(usersRef, where("email", "==", email));
+    
+  }
 
-  // "quertSnapshot" değişkenine, firebase getDocs
+    // "quertSnapshot" değişkenine, firebase getDocs
   // fonksiyonu ile yukarıdaki myQuery sorgusundan dönen dosyaları geri döndürüyoruz.
   const querySnapshot = await getDocs(myQuery);
+
+ 
+  
+
+ 
   
   // Eğer email ile eşleşen veri varsa dizi döndürüyor.
  try {
@@ -74,12 +88,16 @@ export const getUserData = async (email:string):Promise<UserData | null> => {
    return userDocData;
  } catch (error) {
   console.log("Kullanıcı bulunamadı." + error);
-  return null;
+  throw new Error("Kullanıcı bulunamadı.");
+
  }
 
 
 
 };
+
+
+
 
 export async function registerUsertoFirestore(uid:string, email:string, username:string):Promise<void> {
   const userDocRef = doc(db, "users", uid);
@@ -89,7 +107,21 @@ export async function registerUsertoFirestore(uid:string, email:string, username
     profileImage: "http://sportstipsfree.click/tweet/avatar.png",
     id: uid,
     credit: 5000,
+    desc: "lorem ipsum dolor sit amet"
   });
 }
+
+
+export async function addCredit(id:string) {
+  const userDocRef = collection(db, "users");
+  const q = query(userDocRef,where("id","==",id));
+  const quertSnapshot = getDocs(q);
+  console.log((await quertSnapshot).docs);
+  
+
+}
+
+
+
 
 export { db, auth, signOut };

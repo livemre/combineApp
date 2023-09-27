@@ -14,6 +14,8 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 
+import Navbar from "../components/Navbar"
+
 // Context
 import { MainContext, useContext } from "../context/Context";
 
@@ -35,13 +37,16 @@ const Login:React.FC = () => {
   // eğer kullanıcı giriş yapmışsa direkt "dashboard" sayfasına yönlendir.
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [user,navigate]);
 
   return (
-    <Flex
-      minH={"100vh"}
+    <Box>
+      <Navbar />
+      <Flex
+    
+      pt={25}
       align={"center"}
       justify={"center"}
       bg={useColorModeValue("gray.50", "gray.800")}
@@ -98,6 +103,7 @@ const Login:React.FC = () => {
         </Box>
       </Stack>
     </Flex>
+    </Box>
   );
 }
 

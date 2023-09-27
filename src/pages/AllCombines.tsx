@@ -1,16 +1,16 @@
 import React from "react";
-import { Container } from "@chakra-ui/react";
+import { Container, Box } from "@chakra-ui/react";
 import Navbar from "../components/Navbar";
 import ListCombines from "../components/ListCombines";
 
 const AllCombines = () => {
   return (
-    <div>
+    <Box background={"black"}> 
       <Navbar />
-      <Container>
+      <Box pt={75}>
         <ListCombines />
-      </Container>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

@@ -15,6 +15,7 @@ import {
   Stack,
   StackDivider,
   Box,
+  CircularProgress,
 } from "@chakra-ui/react";
 
 import {
@@ -26,65 +27,67 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../services/firebase";
+import { MainContext, useContext } from "../context/Context";
+import { CheckCircleIcon } from "@chakra-ui/icons";
 
 interface IProps {
-  item:ICombine;
-  email:string;
+  item: ICombine;
+  email: string;
 }
 
 interface IPrediction {
-  id:string;
-  pick:number;
+  id: string;
+  pick: number;
   teams: string;
   type: string;
-
 }
 
 interface ICombine {
-  boughtUsers : string [];
+  boughtUsers: string[];
   combine: IPrediction[];
   credit: number;
-  id:string;
-  likedUsers : string[];
-  sender : string;
+  id: string;
+  totalOdds:number;
+  likedUsers: string[];
+  sender: string;
   timestamp: {
     seconds: number;
     nanoseconds: number;
   };
-  username : string;
-  isLiked : boolean;
-  isBought : boolean;
-  profileImage : string | null;
+  username: string;
+  isLiked: boolean;
+  isBought: boolean;
+  profileImage: string | null;
 }
 
-export const Combine:React.FC<IProps> = ({ item, email }) => {
-  async function likeCombine(id:string):Promise<void> {
-    
+export const Combine: React.FC<IProps> = ({ item, email }) => {
+  const { user, credit, setCredit, id } = useContext(MainContext);
 
-    // Tweet belgesinin referansını al
-    const combineRef = doc(db, "combines", id);
+  async function likeCombine(id: string): Promise<void> {
+    if (user) {
+      // Tweet belgesinin referansını al
+      const combineRef = doc(db, "combines", id);
 
-    // Tweet belgesini al
-    const tweetSnap = await getDoc(combineRef);
-    const tweetData = tweetSnap.data();
+      // Tweet belgesini al
+      const tweetSnap = await getDoc(combineRef);
+      const tweetData = tweetSnap.data();
 
-    // Kullanıcının tweeti beğenip beğenmediğini kontrol et
-    if (tweetData?.likedUsers.includes(email)) {
-      // Eğer kullanıcı tweeti zaten beğendi ise, e-postasını likedUsers dizisinden kaldır
-      await updateDoc(combineRef, {
-        likedUsers: arrayRemove(email),
-      });
-    } else {
-      // Eğer kullanıcı tweeti beğenmedi ise, e-postasını likedUsers dizisine ekleyin
-      await updateDoc(combineRef, {
-        likedUsers: arrayUnion(email),
-      });
+      // Kullanıcının tweeti beğenip beğenmediğini kontrol et
+      if (tweetData?.likedUsers.includes(email)) {
+        // Eğer kullanıcı tweeti zaten beğendi ise, e-postasını likedUsers dizisinden kaldır
+        await updateDoc(combineRef, {
+          likedUsers: arrayRemove(email),
+        });
+      } else {
+        // Eğer kullanıcı tweeti beğenmedi ise, e-postasını likedUsers dizisine ekleyin
+        await updateDoc(combineRef, {
+          likedUsers: arrayUnion(email),
+        });
+      }
     }
   }
 
-  async function buyCombine(id:string):Promise<void> {
-
-
+  async function buyCombine(id: string): Promise<void> {
     // Tweet belgesinin referansını al
     const combineRef = doc(db, "combines", id);
 
@@ -102,36 +105,76 @@ export const Combine:React.FC<IProps> = ({ item, email }) => {
       // Eğer kullanıcı tweeti beğenmedi ise, e-postasını likedUsers dizisine ekleyin
       await updateDoc(combineRef, {
         boughtUsers: arrayUnion(email),
-      });
+      }).then(() => setCredit(credit - item.credit));
     }
+  }
+
+  function formatTimestamp(timestamp: any) {
+    const date = timestamp.toDate(); // Firestore Timestamp'ini JavaScript Date'ine dönüştür
+
+    const day = date.getDate();
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0"); // Saati iki basamaklı olarak göster
+    const minutes = String(date.getMinutes()).padStart(2, "0"); // Dakikayı iki basamaklı olarak göster
+
+    return `${day} ${month} ${year} ${hours}:${minutes}`;
   }
 
   return (
     <Box w="100%">
-      <Card key={item.id} className="bg-combine" m={3}>
-        <CardHeader className="flex">
+      <Card key={item.id} style={{backgroundColor:"#212121"}} mb={3}>
+        <Box className="flex" justifyContent={"space-between"} style={{backgroundColor:"#676767"}} p={2}>
+         
+
+          <Box display={"flex"} flexDirection={"row"}>
           {item.profileImage && (
             <Image
               borderRadius="full"
-              boxSize="32px"
+              boxSize="48px"
               src={item.profileImage}
               alt="Image"
             />
           )}
-          <Text size="md" className="ml-3">
-            <Link to={"/u/" + item.username}>{item.username}</Link>
-          </Text>
-        </CardHeader>
-        <hr className="bg-black" />
+            <Box ml={2}>
+            <Link to={"/u/" + item.username}>
+              
+              <Box display={"flex"}>
+              <Text size="md">{item.username}</Text>
+              
+              </Box>
+            </Link>
 
-        {item.credit === 0 || item.isBought ? (
-          item.combine.map((item:IPrediction) => (
-            <CardBody>
+            <Text fontSize={"smaller"}>{formatTimestamp(item.timestamp)}</Text>
+            </Box>
+          </Box>
+         
+          <Badge colorScheme={"orange"}>{item?.totalOdds?.toFixed(2)}</Badge>
+        
+        </Box>
+
+        
+
+        {item.credit === 0 || item.sender === id || item.isBought ? (
+          item.combine.map((item: IPrediction) => (
+            <Box key={item.id} pl={5} m={2}>
               <Stack divider={<StackDivider />} spacing="4">
                 <Box>
-                  <Heading size="xs" textTransform="uppercase">
-                    {item.teams}
-                  </Heading>
+                  <h4>{item.teams}</h4>
                   <div className="flex">
                     <Badge
                       className="mr-3 minwidth2rem"
@@ -151,50 +194,58 @@ export const Combine:React.FC<IProps> = ({ item, email }) => {
                   </div>
                 </Box>
               </Stack>
-            </CardBody>
+            </Box>
           ))
         ) : (
-          <div className="flex-jc mt-3">
-            <FiLock size={50}></FiLock>
-            <Text>You have to buy this combine to see details.</Text>
-          </div>
+          <Box display={"flex"} m={3}>
+            <FiLock size={35} color={"red"}></FiLock>
+            <Text ml={2}>You have to buy this combine to see details.</Text>
+          </Box>
         )}
 
-        <CardFooter>
+        <Box m={3} background={"blackAlpha.100"}>
           {email === "" ? (
             <Card p={1} m={1}>
-              <Text>{item.likedUsers.length} users liked.</Text>
+              <Text color={"black"}>{item.likedUsers.length} users liked.</Text>
             </Card>
           ) : (
             <Button
               m={2}
+              size={"sm"}
               colorScheme={item.isLiked ? "red" : "gray"}
               onClick={() => likeCombine(item.id)}
             >
               {item.isLiked ? (
-                <Text>{item.likedUsers.length} Like</Text>
+                <Text color={"black"}>{item.likedUsers.length} Like</Text>
               ) : (
-                <Text> {item.likedUsers.length} Like</Text>
+                <Text color={"black"}> {item.likedUsers.length} Like</Text>
               )}
             </Button>
           )}
 
           {email === "" ? (
             <Card p={1} m={1}>
-              <Text>{item.boughtUsers.length} users bought.</Text>
+              <Text color={"black"}>
+                {item.boughtUsers.length} users bought.
+              </Text>
             </Card>
           ) : item.isBought ? (
-            <Button m={2}> Bought</Button>
+           <Button leftIcon={<CheckCircleIcon width={25} />} size={"sm"} isDisabled={true} colorScheme="green">Purchased!</Button>
           ) : (
-            <Button
-              m={2}
-              colorScheme={item.isBought ? "blue" : "green"}
-              onClick={() => buyCombine(item.id)}
-            >
-              {item.isBought ? "BOUGHT" : item.credit === 0 ? "FREE" : item.credit + " Credits"}
-            </Button>
+            item.sender === id ? "" : item.credit === 0 ? <Button leftIcon={<CheckCircleIcon width={25} />} size={"sm"} isDisabled={true} colorScheme="blue">Free!</Button> :  <Button
+            m={2}
+            size={"sm"}
+            colorScheme={item.isBought ? "blue" : "green"}
+            onClick={() => buyCombine(item.id)}
+          >
+            {item.isBought
+              ? ""
+              : item.credit === 0
+              ? "FREE"
+              : item.credit + " Credits"}
+          </Button> 
           )}
-        </CardFooter>
+        </Box>
       </Card>
     </Box>
   );

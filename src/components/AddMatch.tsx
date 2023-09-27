@@ -21,20 +21,27 @@ import {
   CardFooter,
   Select,
   Box,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  Badge,
+  Flex,
 } from "@chakra-ui/react";
 
 import { MainContext, useContext } from "../context/Context";
+import { HamburgerIcon } from "@chakra-ui/icons";
 
 import Navbar from "./Navbar";
 import "../App.css";
 
-interface IOdds  {
-  awayWin: any,
-  homeWin: any,
-  draw: any,
-  over: any,
-  under: any,
-};
+interface IOdds {
+  awayWin: any;
+  homeWin: any;
+  draw: any;
+  over: any;
+  under: any;
+}
 
 interface IMatch {
   awayTeam: string;
@@ -66,12 +73,13 @@ function AddMatch() {
   console.log(yourCombine);
   console.log("Total Odds");
   console.log(totalOdds);
-  
-  
 
-
-
-  function handlePick(matchId:any, matchTeams:any, oddsValue:any, oddsType:any):void {
+  function handlePick(
+    matchId: any,
+    matchTeams: any,
+    oddsValue: any,
+    oddsType: any
+  ): void {
     // Seçilen oranın zaten yourCombine listesinde olup olmadığını kontrol et
     const pickExists = yourCombine.some(
       (pick) => pick.id === matchId && pick.type === oddsType
@@ -96,7 +104,9 @@ function AddMatch() {
       updatedCombines.push(newPick);
     }
 
-    const sortedCombine = updatedCombines.sort((a, b) => Number(b.id) - Number(a.id));
+    const sortedCombine = updatedCombines.sort(
+      (a, b) => Number(b.id) - Number(a.id)
+    );
     setYourCombine(sortedCombine);
   }
 
@@ -104,11 +114,11 @@ function AddMatch() {
     getMatches();
   }, []);
 
-  function handleChange(value:any) {
+  function handleChange(value: any) {
     return setCredit(value);
   }
 
-  async function onCombineHandler(e:any) {
+  async function onCombineHandler(e: any) {
     e.preventDefault();
     // alert(tweet);
 
@@ -123,6 +133,7 @@ function AddMatch() {
       likedUsers: [],
       boughtUsers: [],
       credit: credit,
+      totalOdds: totalOdds,
     });
 
     // Oluşturulan dökümanın ID'sini al
@@ -146,11 +157,11 @@ function AddMatch() {
   async function getMatches() {
     const q = query(collection(db, "matches"));
     const querySnapshot = await getDocs(q);
-    const matchsArray:IMatch[] = [];
+    const matchsArray: IMatch[] = [];
     for (const doc of querySnapshot.docs) {
       const matchsData = doc.data();
 
-      matchsArray.push({ ...matchsData as IMatch });
+      matchsArray.push({ ...(matchsData as IMatch) });
     }
     setMatches(matchsArray);
     console.log("Matches");
@@ -158,35 +169,31 @@ function AddMatch() {
   }
 
   return (
-    <div className="addMatchContainer">
-      <div className="fixed">
-      <Navbar />
-      </div>
-      <div className="addMatch">
-        <Box>
-          <TableContainer>
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>Time</Th>
-                  <Th>Teams</Th>
-                  <Th isNumeric>1</Th>
-                  <Th isNumeric>0</Th>
-                  <Th isNumeric>2</Th>
-                  <Th isNumeric>2,5 Over</Th>
-                  <Th isNumeric>2,5 Under</Th>
-                </Tr>
-              </Thead>
+    <div className="flex-jc-col">
+      <Navbar/>
 
-              {matches.map((item) => {
-                console.log(matches);
-                return (
-                  <Thead>
-                    <Tr>
-                      <Th>{item.startTime}</Th>
-                      <Th>{item.homeTeam + " - " + item.awayTeam}</Th>
-                      <Th isNumeric>
-                        <Button
+      <Box w={"full"} pt={45}>
+        {matches.map((item) => {
+          console.log(matches);
+          return (
+            <div>
+              <Accordion  allowToggle>
+                <AccordionItem>
+                  <AccordionButton display={"flex"} justifyContent={"space-between"}>
+                    <p className="blackText">{item.startTime}</p>
+                    <p className="blackText">
+                      {item.homeTeam + " - " + item.awayTeam}
+                    </p>
+
+                  
+                    <HamburgerIcon color={"black"}/>
+                  </AccordionButton>
+                  <AccordionPanel pb={4}>
+                      <div className="oran-buttons">
+                       <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"} >
+                        <Text color={"black"} fontSize={12}>Home Wins</Text>
+                       <Button
+                        size={"xs"}
                           className={`oran ${
                             yourCombine.some(
                               (pick) =>
@@ -206,11 +213,18 @@ function AddMatch() {
                             )
                           }
                         >
-                          {item.odds?.homeWin}
+                         
+                        
+                         {item.odds?.homeWin}
+                         
                         </Button>
-                      </Th>
-                      <Th isNumeric>
+                       </Box>
+
+                       <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"} >
+                        <Text color={"black"} fontSize={12}>Draw</Text>
+
                         <Button
+                         size={"xs"}
                           className={`oran ${
                             yourCombine.some(
                               (pick) =>
@@ -232,9 +246,13 @@ function AddMatch() {
                         >
                           {item.odds?.draw}
                         </Button>
-                      </Th>
-                      <Th isNumeric>
+
+                        </Box>
+
+                        <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"} >
+                        <Text color={"black"} fontSize={12}>Away Wins</Text>
                         <Button
+                         size={"xs"}
                           className={`oran ${
                             yourCombine.some(
                               (pick) =>
@@ -256,9 +274,12 @@ function AddMatch() {
                         >
                           {item.odds?.awayWin}
                         </Button>
-                      </Th>
-                      <Th isNumeric>
+                        </Box>
+
+                        <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"} >
+                        <Text color={"black"} fontSize={12}>2,5 Under</Text>
                         <Button
+                        size={"xs"}
                           className={`oran ${
                             yourCombine.some(
                               (pick) =>
@@ -280,9 +301,11 @@ function AddMatch() {
                         >
                           {item.odds?.over}
                         </Button>
-                      </Th>
-                      <Th isNumeric>
+                        </Box>
+                        <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} alignItems={"center"} >
+                        <Text color={"black"} fontSize={12}>2,5 Over</Text>
                         <Button
+                        size={"xs"}
                           className={`oran ${
                             yourCombine.some(
                               (pick) =>
@@ -304,59 +327,69 @@ function AddMatch() {
                         >
                           {item.odds?.under}
                         </Button>
-                      </Th>
-                    </Tr>
-                  </Thead>
+                        </Box>
+                      </div>
+                    </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          );
+        })}
+      </Box>
+      {yourCombine.length > 0 ? (
+       <Accordion allowToggle>
+       <AccordionItem>
+        <AccordionButton>
+          <Text className="blackText">Combine</Text>
+        </AccordionButton>
+        <AccordionPanel >
+        <Box>
+          <Card>
+            <CardBody className="bg-green">
+              <Text color={"black"} fontSize={16}>Your Combine</Text>
+              {yourCombine.map((item) => {
+                return (
+                  <Box className="matchCard" key={item.id}>
+                   
+                      <Card display={"flex"} flexDirection={"row"} p={2} m={1}>
+                      <Badge display={"flex"} alignItems={"center"} mr={2}>{item.pick}</Badge>
+                        <Text color={"black"}>{item.teams}</Text>
+                        
+                          
+                        
+                      </Card>
+                    
+                  </Box>
                 );
               })}
-            </Table>
-          </TableContainer>
+            <Badge p={1} m={1}>
+              <Text color={"black"}>{"Total Odds: " + totalOdds.toFixed(2)}</Text>
+            </Badge>
+              <div className="publish-zone">
+                <Select
+                  m={1}
+                  variant="filled"
+                  size="sm"
+                  onChange={(e) => handleChange(e.target.value)}
+                >
+                  <option value={0}>Free</option>
+                  <option value={100}>100 Credits</option>
+                  <option value={500}>500 Credits</option>
+                  <option value={1000}>1000 Credits</option>
+                </Select>
+                <Button m={1} size={"sm"} colorScheme="blue" onClick={onCombineHandler}>
+                  PUBLISH
+                </Button>
+              </div>
+            </CardBody>
+          </Card>
         </Box>
-        {yourCombine.length > 0 ? (
-          <div className="yourCombine">
-            <Card>
-              <CardBody className="bg-green">
-                <Text className="title-text">Your Combine</Text>
-                {yourCombine.map((item) => {
-                  return (
-                    <div className="matchCard" key={item.id}>
-                      <Card m={2} className="bg-grey">
-                        <CardBody>
-                          {item.teams}
-                          <div>
-                            <p>{item.pick}</p>
-                          </div>
-                        </CardBody>
-                      </Card>
-                    </div>
-                  );
-                })}
-                <Card className="mt-3" m={2}>
-                  <CardFooter>{"Total Odds: " + totalOdds.toFixed(2)}</CardFooter>
-                </Card>
-                <div className="publish-zone">
-                  <Select
-                    m={2}
-                    variant="filled"
-                    size="md"
-                    onChange={(e) => handleChange(e.target.value)}
-                  >
-                    <option value={0}>Free</option>
-                    <option value={100}>100 Credit</option>
-                    <option value={500}>500 Credit</option>
-                    <option value={1000}>1000 Credit</option>
-                  </Select>
-                  <Button m={2} colorScheme="blue" onClick={onCombineHandler}>
-                    PUBLISH
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        ) : (
-          <div className="yourCombine"></div>
-        )}
-      </div>
+        </AccordionPanel>
+        </AccordionItem> 
+       </Accordion>
+      ) : (
+        <div className="yourCombine"></div>
+      )}
     </div>
   );
 }
